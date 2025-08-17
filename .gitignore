@@ -1,0 +1,36 @@
+# NodeJS and Node files and directories
+node_modules
+.next/
+.swc/
+*lock.json
+
+# Database files
+*.db
+
+# OS, Editor, Environment
+.DS_Store
+.vscode/
+*.env
+*.local
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Logs
+pip-log.txt
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
