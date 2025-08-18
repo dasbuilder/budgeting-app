@@ -17,6 +17,7 @@ export default function Home() {
   const [filters, setFilters] = useState<TransactionFilters>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [perPage, setPerPage] = useState(50);
   const [activeTab, setActiveTab] = useState<'transactions' | 'rules' | 'upload'>('upload');
 
   // Load initial data
@@ -29,7 +30,8 @@ export default function Home() {
   // Reload transactions when filters change
   useEffect(() => {
     loadTransactions();
-  }, [filters, currentPage]);
+    loadStats(filters); // Pass filters to stats
+  }, [filters, currentPage, perPage]);
 
   const loadTransactions = async () => {
     try {
@@ -37,7 +39,7 @@ export default function Home() {
       const response = await apiService.getTransactions({
         ...filters,
         page: currentPage,
-        per_page: 50
+        per_page: perPage
       });
       setTransactions(response.transactions);
       setTotalPages(response.pagination.pages);
@@ -59,9 +61,9 @@ export default function Home() {
     }
   };
 
-  const loadStats = async () => {
+  const loadStats = async (currentFilters: TransactionFilters = {}) => {
     try {
-      const statsData = await apiService.getStats();
+      const statsData = await apiService.getStats(currentFilters);
       setStats(statsData);
     } catch (err) {
       console.error('Error loading stats:', err);
@@ -96,6 +98,11 @@ export default function Home() {
   const handleFiltersChange = (newFilters: TransactionFilters) => {
     setFilters(newFilters);
     setCurrentPage(1); // Reset to first page when filters change
+  };
+
+  const handlePerPageChange = (newPerPage: number) => {
+    setPerPage(newPerPage);
+    setCurrentPage(1); // Reset to first page when changing per-page
   };
 
   const handleCreateRule = async (rule: Omit<CategoryRule, 'id' | 'created_at' | 'updated_at'>) => {
@@ -252,6 +259,8 @@ export default function Home() {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={setCurrentPage}
+                perPage={perPage}
+                onPerPageChange={handlePerPageChange}
               />
             </div>
           )}
