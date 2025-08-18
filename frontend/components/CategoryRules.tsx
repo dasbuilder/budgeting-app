@@ -84,6 +84,61 @@ const CategoryRules: React.FC<CategoryRulesProps> = ({
           <div className="flex space-x-2">
             <button
               onClick={() => {
+                // Export category rules
+                fetch('http://127.0.0.1:5000/api/category-rules/export')
+                  .then(response => response.json())
+                  .then(data => {
+                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `category-rules-${new Date().toISOString().split('T')[0]}.json`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                  })
+                  .catch(err => alert('Error exporting rules'));
+              }}
+              className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Export Rules
+            </button>
+            
+            <label className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer">
+              Import Rules
+              <input
+                type="file"
+                accept=".json"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      try {
+                        const data = JSON.parse(event.target?.result as string);
+                        fetch('http://127.0.0.1:5000/api/category-rules/import', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(data)
+                        })
+                          .then(response => response.json())
+                          .then(result => {
+                            alert(`Imported ${result.imported_count} rules, updated ${result.updated_transactions} transactions`);
+                            window.location.reload();
+                          })
+                          .catch(err => alert('Error importing rules'));
+                      } catch (err) {
+                        alert('Invalid JSON file');
+                      }
+                    };
+                    reader.readAsText(file);
+                  }
+                }}
+              />
+            </label>
+            
+            <button
+              onClick={() => {
                 if (confirm('Re-categorize all existing transactions with current rules?')) {
                   // Call recategorize API with correct URL
                   fetch('http://127.0.0.1:5000/api/recategorize-all', { method: 'POST' })
