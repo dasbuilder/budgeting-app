@@ -1,7 +1,7 @@
 import os
 import re
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
@@ -36,15 +36,15 @@ class Transaction(db.Model):
     balance = db.Column(db.Float, nullable=True)
     check_number = db.Column(db.String(50), nullable=True)
     csv_format = db.Column(db.String(20), nullable=False)  # 'format1' or 'format2'
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
 class CategoryRule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     category_name = db.Column(db.String(100), nullable=False)
     regex_pattern = db.Column(db.String(500), nullable=False)
     is_active = db.Column(db.Boolean, default=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 
 # Helper functions
 def detect_csv_format(df):
@@ -149,6 +149,8 @@ def recategorize_all_transactions():
         transactions = Transaction.query.all()
         updated_count = 0
         
+        print(f"Re-categorizing {len(transactions)} transactions...")
+        
         for transaction in transactions:
             old_category = transaction.auto_category
             new_category = auto_categorize_transaction(
@@ -156,12 +158,16 @@ def recategorize_all_transactions():
                 transaction.memo or ''
             )
             
+            print(f"Transaction: '{transaction.description[:30]}' | Old: '{old_category}' | New: '{new_category}'")
+            
             if old_category != new_category:
                 transaction.auto_category = new_category
-                # Only update manual_category if it was None (not manually set)
+                # Only update if manual_category is None (not manually set)
                 if transaction.manual_category is None:
                     updated_count += 1
-                    print(f"Updated: {transaction.description[:50]} -> {new_category}")
+                    print(f"  -> UPDATED to: {new_category}")
+                else:
+                    print(f"  -> SKIPPED (manually categorized as: {transaction.manual_category})")
         
         db.session.commit()
         print(f"Re-categorized {updated_count} transactions")
@@ -171,6 +177,20 @@ def recategorize_all_transactions():
         db.session.rollback()
         print(f"Error re-categorizing transactions: {e}")
         return 0
+    """Auto-categorize a transaction based on regex rules"""
+    rules = CategoryRule.query.filter_by(is_active=True).all()
+    
+    text_to_match = f"{description} {memo}".lower()
+    
+    for rule in rules:
+        try:
+            if re.search(rule.regex_pattern.lower(), text_to_match):
+                return rule.category_name
+        except re.error:
+            # Skip invalid regex patterns
+            continue
+    
+    return 'Uncategorized'
 
 # API Routes
 @app.route('/api/health', methods=['GET'])
@@ -420,7 +440,7 @@ def update_category_rule(rule_id):
         if 'is_active' in data:
             rule.is_active = data['is_active']
         
-        rule.updated_at = datetime.utcnow()
+        rule.updated_at = datetime.now(timezone.utc)
         db.session.commit()
         
         # Re-categorize all transactions with updated rules
@@ -447,7 +467,7 @@ def delete_category_rule(rule_id):
         
         # Soft delete by setting is_active to False
         rule.is_active = False
-        rule.updated_at = datetime.utcnow()
+        rule.updated_at = datetime.now(timezone.utc)
         db.session.commit()
         
         return jsonify({'message': 'Category rule deleted successfully'})
@@ -455,6 +475,90 @@ def delete_category_rule(rule_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': f'Error deleting category rule: {str(e)}'}), 500
+
+@app.route('/api/category-rules/export', methods=['GET'])
+def export_category_rules():
+    """Export all category rules as JSON"""
+    try:
+        rules = CategoryRule.query.filter_by(is_active=True).all()
+        
+        export_data = {
+            'version': '1.0',
+            'exported_at': datetime.now(timezone.tzname("Chicago")).isoformat(),
+            'rules': [
+                {
+                    'category_name': rule.category_name,
+                    'regex_pattern': rule.regex_pattern,
+                    'is_active': rule.is_active
+                }
+                for rule in rules
+            ]
+        }
+        
+        return jsonify(export_data)
+        
+    except Exception as e:
+        return jsonify({'error': f'Error exporting category rules: {str(e)}'}), 500
+
+@app.route('/api/category-rules/import', methods=['POST'])
+def import_category_rules():
+    """Import category rules from JSON"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'rules' not in data:
+            return jsonify({'error': 'Invalid import data format'}), 400
+        
+        imported_count = 0
+        skipped_count = 0
+        
+        for rule_data in data['rules']:
+            if not all(key in rule_data for key in ['category_name', 'regex_pattern']):
+                skipped_count += 1
+                continue
+            
+            # Check if rule already exists
+            existing_rule = CategoryRule.query.filter_by(
+                category_name=rule_data['category_name'],
+                regex_pattern=rule_data['regex_pattern']
+            ).first()
+            
+            if existing_rule:
+                skipped_count += 1
+                continue
+            
+            # Test if regex is valid
+            try:
+                re.compile(rule_data['regex_pattern'])
+            except re.error:
+                skipped_count += 1
+                continue
+            
+            # Create new rule
+            new_rule = CategoryRule(
+                category_name=rule_data['category_name'].strip(),
+                regex_pattern=rule_data['regex_pattern'].strip(),
+                is_active=rule_data.get('is_active', True)
+            )
+            
+            db.session.add(new_rule)
+            imported_count += 1
+        
+        db.session.commit()
+        
+        # Re-categorize all transactions with new rules
+        updated_count = recategorize_all_transactions()
+        
+        return jsonify({
+            'message': f'Successfully imported {imported_count} rules, skipped {skipped_count} duplicates/invalid',
+            'imported_count': imported_count,
+            'skipped_count': skipped_count,
+            'updated_transactions': updated_count
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': f'Error importing category rules: {str(e)}'}), 500
 
 @app.route('/api/recategorize-all', methods=['POST'])
 def recategorize_all_endpoint():
@@ -497,16 +601,45 @@ def clear_database():
 def get_stats():
     """Get basic statistics about transactions"""
     try:
-        total_transactions = Transaction.query.count()
+        # Query parameters for filtering (same as transactions endpoint)
+        transaction_type = request.args.get('type')
+        category = request.args.get('category')
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
         
-        # Get date range
-        date_range = db.session.query(
+        # Build query with same filters as transactions
+        query = Transaction.query
+        
+        if transaction_type:
+            query = query.filter(Transaction.transaction_type.ilike(f'%{transaction_type}%'))
+        
+        if category:
+            query = query.filter(
+                db.or_(
+                    Transaction.manual_category.ilike(f'%{category}%'),
+                    Transaction.auto_category.ilike(f'%{category}%')
+                )
+            )
+        
+        if start_date:
+            start_dt = datetime.strptime(start_date, '%Y-%m-%d')
+            query = query.filter(Transaction.transaction_date >= start_dt)
+        
+        if end_date:
+            end_dt = datetime.strptime(end_date, '%Y-%m-%d')
+            query = query.filter(Transaction.transaction_date <= end_dt)
+        
+        # Get filtered transaction count
+        total_transactions = query.count()
+        
+        # Get date range from filtered transactions
+        date_range = query.with_entities(
             db.func.min(Transaction.transaction_date),
             db.func.max(Transaction.transaction_date)
         ).first()
         
-        # Get categories summary
-        categories = db.session.query(
+        # Get categories summary from filtered transactions
+        categories = query.with_entities(
             db.func.coalesce(Transaction.manual_category, Transaction.auto_category).label('category'),
             db.func.count().label('count'),
             db.func.sum(Transaction.amount).label('total_amount')
@@ -527,7 +660,13 @@ def get_stats():
                     'total_amount': float(cat.total_amount)
                 }
                 for cat in categories
-            ]
+            ],
+            'filters_applied': {
+                'type': transaction_type,
+                'category': category,
+                'start_date': start_date,
+                'end_date': end_date
+            }
         })
         
     except Exception as e:

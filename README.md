@@ -4,7 +4,7 @@ A comprehensive financial budgeting application built with NextJS frontend and F
 
 ## Note
 
-This is my first vibe coded app, so the security is without warranty 
+Let it be known this is my first fully vibe-coded app. I don't plan on making test cases and mainly wrote this for my personal use. If you spot bugs or have feature requests, fill out an issue or fork it to your own. 
 
 ## Features
 
@@ -189,4 +189,4 @@ FLASK_DEBUG=True
 
 ## License
 
-This project is for personal use. Please respect financial data privacy and security best practices.
+This project is for personal use. Please respect financial data privacy and security best practices. - [LICENSE](./#LICENSE.md)

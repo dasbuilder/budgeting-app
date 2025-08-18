@@ -9,6 +9,8 @@ interface TransactionTableProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  perPage: number;
+  onPerPageChange: (perPage: number) => void;
 }
 
 const TransactionTable: React.FC<TransactionTableProps> = ({
@@ -17,6 +19,8 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
   currentPage,
   totalPages,
   onPageChange,
+  perPage,
+  onPerPageChange,
 }) => {
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
@@ -77,11 +81,29 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 
   return (
     <div className="bg-white rounded-lg shadow overflow-hidden">
-      <div className="px-6 py-4 border-b border-gray-200">
-        <h2 className="text-lg font-medium text-gray-900">Transactions</h2>
-        <p className="text-sm text-gray-500 mt-1">
-          Showing {transactions.length} transactions
-        </p>
+      <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+        <div>
+          <h2 className="text-lg font-medium text-gray-900">Transactions</h2>
+          <p className="text-sm text-gray-500 mt-1">
+            Showing {transactions.length} transactions
+          </p>
+        </div>
+        <div className="flex items-center space-x-4">
+          <label className="text-sm text-gray-700">
+            Show:
+            <select
+              value={perPage}
+              onChange={(e) => onPerPageChange(parseInt(e.target.value))}
+              className="ml-2 border border-gray-300 rounded px-2 py-1 text-sm"
+            >
+              <option value={25}>25</option>
+              <option value={50}>50</option>
+              <option value={100}>100</option>
+              <option value={200}>200</option>
+            </select>
+            per page
+          </label>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -184,7 +206,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                   className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Previous</span>
-                  <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
+                  <ChevronLeftIcon style={{width: '20px', height: '20px', minWidth: '20px', minHeight: '20px', maxWidth: '20px', maxHeight: '20px'}} aria-hidden="true" />
                 </button>
                 
                 {/* Page numbers */}
@@ -213,7 +235,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
                   className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="sr-only">Next</span>
-                  <ChevronRightIcon className="h-5 w-5" aria-hidden="true" />
+                  <ChevronRightIcon style={{width: '20px', height: '20px', minWidth: '20px', minHeight: '20px', maxWidth: '20px', maxHeight: '20px'}} aria-hidden="true" />
                 </button>
               </nav>
             </div>

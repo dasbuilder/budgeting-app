@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Transaction, CategoryRule, TransactionResponse, Stats, TransactionFilters } from '../types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:5000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -56,14 +56,25 @@ export const apiService = {
   },
 
   // Stats
-  async getStats(): Promise<Stats> {
-    const response = await api.get('/stats');
+  async getStats(filters: TransactionFilters = {}): Promise<Stats> {
+    const response = await api.get('/stats', { params: filters });
     return response.data;
   },
 
   // Clear database
   async clearDatabase(): Promise<{ message: string; cleared_count: number }> {
     const response = await api.delete('/clear-database');
+    return response.data;
+  },
+
+  // Category rules import/export
+  async exportCategoryRules(): Promise<any> {
+    const response = await api.get('/category-rules/export');
+    return response.data;
+  },
+
+  async importCategoryRules(data: any): Promise<{ message: string; imported_count: number; skipped_count: number; updated_transactions: number }> {
+    const response = await api.post('/category-rules/import', data);
     return response.data;
   },
 };
