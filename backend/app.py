@@ -1,13 +1,17 @@
 import os
+import pytz
 import re
+import tempfile
 import uuid
+
+import pandas as pd
+
 from datetime import datetime, timezone
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-import pandas as pd
 from werkzeug.utils import secure_filename
-import tempfile
+
 from sqlalchemy import text
 
 app = Flask(__name__)
@@ -177,20 +181,6 @@ def recategorize_all_transactions():
         db.session.rollback()
         print(f"Error re-categorizing transactions: {e}")
         return 0
-    """Auto-categorize a transaction based on regex rules"""
-    rules = CategoryRule.query.filter_by(is_active=True).all()
-    
-    text_to_match = f"{description} {memo}".lower()
-    
-    for rule in rules:
-        try:
-            if re.search(rule.regex_pattern.lower(), text_to_match):
-                return rule.category_name
-        except re.error:
-            # Skip invalid regex patterns
-            continue
-    
-    return 'Uncategorized'
 
 # API Routes
 @app.route('/api/health', methods=['GET'])
@@ -481,10 +471,10 @@ def export_category_rules():
     """Export all category rules as JSON"""
     try:
         rules = CategoryRule.query.filter_by(is_active=True).all()
-        
+        tzinfo = pytz.timezone("America/Chicago")
         export_data = {
             'version': '1.0',
-            'exported_at': datetime.now(timezone.tzname("Chicago")).isoformat(),
+            'exported_at': datetime.now(tzinfo).strftime("%Y-%m-%dT%H:%M:%S"),
             'rules': [
                 {
                     'category_name': rule.category_name,
