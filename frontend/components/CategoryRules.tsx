@@ -62,22 +62,13 @@ const CategoryRules: React.FC<CategoryRulesProps> = ({
     }
   };
 
-  const testRegex = (pattern: string, testText: string = 'example text') => {
-    try {
-      const regex = new RegExp(pattern, 'i');
-      return regex.test(testText);
-    } catch {
-      return false;
-    }
-  };
-
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
           <div>
-            <h2 className="text-lg font-medium text-gray-900">Category Rules</h2>
-            <p className="text-sm text-gray-500 mt-1">
+            <h2 className="text-lg font-medium text-gray-900 dark:text-white">Category Rules</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               Define regex patterns to automatically categorize transactions
             </p>
           </div>
@@ -98,12 +89,12 @@ const CategoryRules: React.FC<CategoryRulesProps> = ({
                   })
                   .catch(err => alert('Error exporting rules'));
               }}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Export Rules
             </button>
-            
-            <label className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer">
+
+            <label className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 cursor-pointer">
               Import Rules
               <input
                 type="file"
@@ -136,7 +127,7 @@ const CategoryRules: React.FC<CategoryRulesProps> = ({
                 }}
               />
             </label>
-            
+
             <button
               onClick={() => {
                 if (confirm('Re-categorize all existing transactions with current rules?')) {
@@ -150,7 +141,7 @@ const CategoryRules: React.FC<CategoryRulesProps> = ({
                     .catch(err => alert('Error re-categorizing transactions'));
                 }
               }}
-              className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-gray-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
               Re-categorize All
             </button>
@@ -166,31 +157,31 @@ const CategoryRules: React.FC<CategoryRulesProps> = ({
 
         {/* Add new rule form */}
         {showAddForm && (
-          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700/50">
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Category Name
                   </label>
                   <input
                     type="text"
                     value={newRule.category_name}
                     onChange={(e) => setNewRule({ ...newRule, category_name: e.target.value })}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
                     placeholder="e.g., Groceries"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Regex Pattern
                   </label>
                   <input
                     type="text"
                     value={newRule.regex_pattern}
                     onChange={(e) => setNewRule({ ...newRule, regex_pattern: e.target.value })}
-                    className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500"
                     placeholder="e.g., walmart|target|grocery"
                     required
                   />
@@ -204,13 +195,13 @@ const CategoryRules: React.FC<CategoryRulesProps> = ({
                     onChange={(e) => setNewRule({ ...newRule, is_active: e.target.checked })}
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <label className="ml-2 text-sm text-gray-700">Active</label>
+                  <label className="ml-2 text-sm text-gray-700 dark:text-gray-300">Active</label>
                 </div>
                 <div className="space-x-2">
                   <button
                     type="button"
                     onClick={() => setShowAddForm(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600"
                   >
                     Cancel
                   </button>
@@ -229,36 +220,36 @@ const CategoryRules: React.FC<CategoryRulesProps> = ({
 
         {/* Rules table */}
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Category
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Regex Pattern
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
               {rules.map((rule) => (
-                <tr key={rule.id} className="hover:bg-gray-50">
+                <tr key={rule.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     {editingRule?.id === rule.id ? (
                       <input
                         type="text"
                         value={editingRule.category_name}
                         onChange={(e) => setEditingRule({ ...editingRule, category_name: e.target.value })}
-                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                        className="w-full border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       />
                     ) : (
-                      <div className="text-sm font-medium text-gray-900">{rule.category_name}</div>
+                      <div className="text-sm font-medium text-gray-900 dark:text-white">{rule.category_name}</div>
                     )}
                   </td>
                   <td className="px-6 py-4">
@@ -267,10 +258,10 @@ const CategoryRules: React.FC<CategoryRulesProps> = ({
                         type="text"
                         value={editingRule.regex_pattern}
                         onChange={(e) => setEditingRule({ ...editingRule, regex_pattern: e.target.value })}
-                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm font-mono"
+                        className="w-full border border-gray-300 dark:border-gray-600 rounded px-2 py-1 text-sm font-mono bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                       />
                     ) : (
-                      <div className="text-sm text-gray-900 font-mono bg-gray-100 px-2 py-1 rounded">
+                      <div className="text-sm text-gray-900 dark:text-gray-200 font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
                         {rule.regex_pattern}
                       </div>
                     )}
@@ -284,14 +275,14 @@ const CategoryRules: React.FC<CategoryRulesProps> = ({
                           onChange={(e) => setEditingRule({ ...editingRule, is_active: e.target.checked })}
                           className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                         />
-                        <span className="ml-2 text-sm text-gray-700">Active</span>
+                        <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Active</span>
                       </label>
                     ) : (
                       <span
                         className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                           rule.is_active
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
+                            ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                            : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'
                         }`}
                       >
                         {rule.is_active ? 'Active' : 'Inactive'}
@@ -304,13 +295,13 @@ const CategoryRules: React.FC<CategoryRulesProps> = ({
                         <button
                           onClick={handleUpdate}
                           disabled={loading}
-                          className="text-blue-600 hover:text-blue-900 disabled:opacity-50"
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-200 disabled:opacity-50"
                         >
                           Save
                         </button>
                         <button
                           onClick={() => setEditingRule(null)}
-                          className="text-gray-600 hover:text-gray-900"
+                          className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                         >
                           Cancel
                         </button>
@@ -319,14 +310,14 @@ const CategoryRules: React.FC<CategoryRulesProps> = ({
                       <div className="flex space-x-2">
                         <button
                           onClick={() => setEditingRule(rule)}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="text-blue-600 dark:text-blue-400 hover:text-blue-900 dark:hover:text-blue-200"
                         >
                           <PencilIcon style={{width: '16px', height: '16px', minWidth: '16px', minHeight: '16px', maxWidth: '16px', maxHeight: '16px'}} />
                         </button>
                         <button
                           onClick={() => handleDelete(rule.id)}
                           disabled={loading}
-                          className="text-red-600 hover:text-red-900 disabled:opacity-50"
+                          className="text-red-600 dark:text-red-400 hover:text-red-900 dark:hover:text-red-200 disabled:opacity-50"
                         >
                           <TrashIcon style={{width: '16px', height: '16px', minWidth: '16px', minHeight: '16px', maxWidth: '16px', maxHeight: '16px'}} />
                         </button>
@@ -341,50 +332,50 @@ const CategoryRules: React.FC<CategoryRulesProps> = ({
 
         {rules.length === 0 && (
           <div className="px-6 py-8 text-center">
-            <p className="text-gray-500">No category rules defined yet. Add your first rule to get started.</p>
+            <p className="text-gray-500 dark:text-gray-400">No category rules defined yet. Add your first rule to get started.</p>
           </div>
         )}
       </div>
 
       {/* Regex Testing Section */}
-      <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-medium text-gray-900">Regex Pattern Examples</h3>
-          <p className="text-sm text-gray-500 mt-1">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow">
+        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">Regex Pattern Examples</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Common patterns for categorizing transactions
           </p>
         </div>
         <div className="px-6 py-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Example Patterns</h4>
+              <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Example Patterns</h4>
               <div className="space-y-2 text-sm">
                 <div>
-                  <span className="font-mono bg-gray-100 px-2 py-1 rounded">walmart|target|grocery</span>
-                  <p className="text-gray-600 text-xs mt-1">Matches Walmart, Target, or any text containing "grocery"</p>
+                  <span className="font-mono bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200 px-2 py-1 rounded">walmart|target|grocery</span>
+                  <p className="text-gray-600 dark:text-gray-400 text-xs mt-1">Matches Walmart, Target, or any text containing &quot;grocery&quot;</p>
                 </div>
                 <div>
-                  <span className="font-mono bg-gray-100 px-2 py-1 rounded">^(gas|fuel)</span>
-                  <p className="text-gray-600 text-xs mt-1">Matches text starting with "gas" or "fuel"</p>
+                  <span className="font-mono bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200 px-2 py-1 rounded">^(gas|fuel)</span>
+                  <p className="text-gray-600 dark:text-gray-400 text-xs mt-1">Matches text starting with &quot;gas&quot; or &quot;fuel&quot;</p>
                 </div>
                 <div>
-                  <span className="font-mono bg-gray-100 px-2 py-1 rounded">restaurant|cafe|mcdonald</span>
-                  <p className="text-gray-600 text-xs mt-1">Matches restaurant, cafe, or McDonald's</p>
+                  <span className="font-mono bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200 px-2 py-1 rounded">restaurant|cafe|mcdonald</span>
+                  <p className="text-gray-600 dark:text-gray-400 text-xs mt-1">Matches restaurant, cafe, or McDonald&apos;s</p>
                 </div>
                 <div>
-                  <span className="font-mono bg-gray-100 px-2 py-1 rounded">\d{4}.*electric</span>
-                  <p className="text-gray-600 text-xs mt-1">Matches 4 digits followed by "electric" (utility bills)</p>
+                  <span className="font-mono bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-200 px-2 py-1 rounded">\d{'{4}'}.*electric</span>
+                  <p className="text-gray-600 dark:text-gray-400 text-xs mt-1">Matches 4 digits followed by &quot;electric&quot; (utility bills)</p>
                 </div>
               </div>
             </div>
             <div>
-              <h4 className="text-sm font-medium text-gray-900 mb-3">Pattern Tips</h4>
-              <div className="text-sm text-gray-600 space-y-2">
-                <div>• Use <code className="bg-gray-100 px-1 rounded">|</code> for OR conditions</div>
-                <div>• Use <code className="bg-gray-100 px-1 rounded">^</code> to match start of text</div>
-                <div>• Use <code className="bg-gray-100 px-1 rounded">$</code> to match end of text</div>
-                <div>• Use <code className="bg-gray-100 px-1 rounded">.*</code> to match any characters</div>
-                <div>• Use <code className="bg-gray-100 px-1 rounded">\d</code> to match digits</div>
+              <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Pattern Tips</h4>
+              <div className="text-sm text-gray-600 dark:text-gray-300 space-y-2">
+                <div>• Use <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">|</code> for OR conditions</div>
+                <div>• Use <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">^</code> to match start of text</div>
+                <div>• Use <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">$</code> to match end of text</div>
+                <div>• Use <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">.*</code> to match any characters</div>
+                <div>• Use <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">\d</code> to match digits</div>
                 <div>• Patterns are case-insensitive</div>
                 <div>• Test carefully to avoid false matches</div>
               </div>

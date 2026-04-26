@@ -5,3 +5,8 @@ pandas==2.3.1
 Werkzeug==2.3.7
 python-dateutil==2.8.2
 openpyxl==3.1.2
+sqlalchemy-utils==0.41.2
+cryptography==42.0.8
+anthropic==0.94.1
+google-genai
+python-dotenv==1.0.0
